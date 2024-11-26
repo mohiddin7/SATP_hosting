@@ -11,10 +11,7 @@ def fetch_data_from_google_sheets(spreadsheet_name, sheet_name):
     # Set up Google Sheets API credentials
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
     service_account_info = st.secrets["google_credentials"]
-    creds = Credentials.from_service_account_file(
-        'service_account_info', 
-        scopes=SCOPES
-    )
+    creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
     client = gspread.authorize(creds)
 
     # Open the spreadsheet and worksheet
