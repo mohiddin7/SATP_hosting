@@ -10,7 +10,7 @@ def fetch_data_from_google_sheets(spreadsheet_name, sheet_name):
     # Set up Google Sheets API credentials
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
     creds = Credentials.from_service_account_file(
-        '/content/drive/MyDrive/SATP_data/google-cloud/satp-data-colab-to-sheets-82f6f8bb5874.json', 
+        '/satp-data-colab-to-sheets-82f6f8bb5874.json', 
         scopes=SCOPES
     )
     client = gspread.authorize(creds)
