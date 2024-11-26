@@ -1,4 +1,5 @@
-%%writefile app.py
+##%%writefile app.py
+import json
 import streamlit as st
 import pandas as pd
 import gspread
@@ -9,8 +10,9 @@ import matplotlib.pyplot as plt
 def fetch_data_from_google_sheets(spreadsheet_name, sheet_name):
     # Set up Google Sheets API credentials
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+    service_account_info = st.secrets["google_credentials"]
     creds = Credentials.from_service_account_file(
-        '/satp-data-colab-to-sheets-82f6f8bb5874.json', 
+        'service_account_info', 
         scopes=SCOPES
     )
     client = gspread.authorize(creds)
