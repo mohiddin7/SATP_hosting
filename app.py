@@ -120,8 +120,18 @@ if st.button("Scrape Data"):
 if st.session_state.scraped_data is not None:
     if st.button("Initiate Save to Google Sheets"):
         st.session_state.save_initiated = True
-
+        
 if st.session_state.save_initiated:
+    st.write("### Data to be Saved:")
+    st.dataframe(st.session_state.scraped_data)  # Display the DataFrame
+    csv = st.session_state.scraped_data.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                label="Download Data as CSV",
+                data=csv,
+                file_name='scraped_data.csv',
+                mime='text/csv',
+            )
+    
     with st.form("save_to_sheets_form"):
         st.write("Save the scraped data to Google Sheets (requires password).")
         password = st.text_input("Enter Password:", type="password")
