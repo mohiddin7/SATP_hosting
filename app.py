@@ -128,7 +128,7 @@ if st.session_state.save_initiated:
         save_button = st.form_submit_button("Save to Google Sheets")
 
         if save_button:
-            if password == "SATP_pass_key":
+            if password == st.secrets["scrape_password"]:
                 with st.spinner("Saving to Google Sheets..."):
                     result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
                 st.success(result)
