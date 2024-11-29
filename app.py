@@ -114,17 +114,16 @@ if st.button("Scrape Data"):
                 mime='text/csv',
             )
 
-# Save to Google Sheets functionality in a form
-    if st.session_state.scraped_data is not None:
-        with st.form("save_to_sheets_form"):
-            st.write("Save the scraped data to Google Sheets (requires password).")
-            password = st.text_input("Enter Password:", type="password")
-            save_button = st.form_submit_button("Save to Google Sheets")
+            # Save to Google Sheets functionality in a form
+            with st.form("save_to_sheets_form"):
+                st.write("Save the scraped data to Google Sheets (requires password).")
+                password = st.text_input("Enter Password:", type="password")
+                save_button = st.form_submit_button("Save to Google Sheets")
 
-            if save_button:
-                if password == "SATP_pass_key":
-                    with st.spinner("Saving to Google Sheets..."):
-                        result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
-                    st.success(result)
-                else:
-                    st.error("Incorrect password!")
+                if save_button:
+                    if password == "SATP_pass_key":
+                        with st.spinner("Saving to Google Sheets..."):
+                            result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
+                        st.success(result)
+                    else:
+                        st.error("Incorrect password!")
