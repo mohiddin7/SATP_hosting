@@ -137,6 +137,7 @@ def main():
     # Show the data table
     st.subheader("Monthly Event Counts")
     st.dataframe(monthly_counts)
+    st.dataframe(scraped_data)
 
 if __name__ == "__main__":
     main()
