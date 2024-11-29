@@ -6,11 +6,13 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 
-# Initialize session state for storing scraped data
+# Initialize session state for storing scraped data and save state
 if "scraped_data" not in st.session_state:
     st.session_state.scraped_data = None
 if "total_incidents" not in st.session_state:
     st.session_state.total_incidents = 0
+if "save_initiated" not in st.session_state:
+    st.session_state.save_initiated = False
 
 # Scraping function
 def scrape_satp_data(base_url, years, months):
@@ -114,16 +116,22 @@ if st.button("Scrape Data"):
                 mime='text/csv',
             )
 
-            # Save to Google Sheets functionality in a form
-            with st.form("save_to_sheets_form"):
-                st.write("Save the scraped data to Google Sheets (requires password).")
-                password = st.text_input("Enter Password:", type="password")
-                save_button = st.form_submit_button("Save to Google Sheets")
+# Save to Google Sheets functionality
+if st.session_state.scraped_data is not None:
+    if st.button("Initiate Save to Google Sheets"):
+        st.session_state.save_initiated = True
 
-                if save_button:
-                    if password == "SATP_pass_key":
-                        with st.spinner("Saving to Google Sheets..."):
-                            result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
-                        st.success(result)
-                    else:
-                        st.error("Incorrect password!")
+if st.session_state.save_initiated:
+    with st.form("save_to_sheets_form"):
+        st.write("Save the scraped data to Google Sheets (requires password).")
+        password = st.text_input("Enter Password:", type="password")
+        save_button = st.form_submit_button("Save to Google Sheets")
+
+        if save_button:
+            if password == "SATP_pass_key":
+                with st.spinner("Saving to Google Sheets..."):
+                    result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
+                st.success(result)
+                st.session_state.save_initiated = False  # Reset after successful save
+            else:
+                st.error("Incorrect password!")
