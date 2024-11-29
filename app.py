@@ -108,13 +108,14 @@ if st.button("Scrape Data"):
                 mime='text/csv',
             )
 
-# Save to Google Sheets button with password
-if not scraped_data.empty:
-    if st.button("Save to Google Sheets"):
-        password = st.text_input("Enter Password:", type="password")
-        if password == "SATP_pass_key":
-            with st.spinner("Saving to Google Sheets..."):
-                result = save_to_google_sheets(scraped_data, "SATP_Data", "raw_zone_incident_summaries")
-            st.success(result)
-        else:
-            st.error("Incorrect password!")
+        # Save to Google Sheets button with password
+        if not scraped_data.empty:
+            if st.button("Save to Google Sheets"):
+                password = st.text_input("Enter Password:", type="password")
+                if password == "SATP_pass_key":
+                    with st.spinner("Saving to Google Sheets..."):
+                        result = save_to_google_sheets(scraped_data, "SATP_Data", "raw_zone_incident_summaries")
+                    st.success(result)
+                else:
+                    st.error("Incorrect password!")
+        
