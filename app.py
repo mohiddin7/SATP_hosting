@@ -28,8 +28,7 @@ def scrape_satp_data(base_url, years, months):
       for month in months:
           url = f"{base_url}-{month}-{year}"
           print(f"Scraping: {url}")
-          session = requests.Session()
-          response = session.get(url, headers=headers)
+          response = requests.get(url)
           # response = requests.get(url, headers=headers)
           if response.status_code != 200:
               print(f"Failed to fetch data for {month}: {response.status_code}")
