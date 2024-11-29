@@ -3,9 +3,16 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import pandas as pd
-import time
 import gspread
 from google.oauth2.service_account import Credentials
+
+# Initialize session state for storing scraped data
+if "scraped_data" not in st.session_state:
+    st.session_state.scraped_data = None
+if "total_incidents" not in st.session_state:
+    st.session_state.total_incidents = 0
+if "save_to_sheets" not in st.session_state:
+    st.session_state.save_to_sheets = False
 
 # Scraping function
 def scrape_satp_data(base_url, years, months):
@@ -20,7 +27,6 @@ def scrape_satp_data(base_url, years, months):
                     continue
 
                 soup = BeautifulSoup(response.text, 'html.parser')
-
                 coverpage_news = soup.find_all('div', class_='more')
                 coverpage_date = soup.find_all('td', style="width: 15%;")
 
@@ -97,10 +103,12 @@ if st.button("Scrape Data"):
     else:
         with st.spinner("Scraping data..."):
             scraped_data, total_incidents = scrape_satp_data(base_url, years, months)
-        st.success(f"Total Incidents Scraped: {total_incidents}")
-        if not scraped_data.empty:
-            st.dataframe(scraped_data)
-            csv = scraped_data.to_csv(index=False).encode('utf-8')
+            st.session_state.scraped_data = scraped_data
+            st.session_state.total_incidents = total_incidents
+        st.success(f"Total Incidents Scraped: {st.session_state.total_incidents}")
+        if not st.session_state.scraped_data.empty:
+            st.dataframe(st.session_state.scraped_data)
+            csv = st.session_state.scraped_data.to_csv(index=False).encode('utf-8')
             st.download_button(
                 label="Download Data as CSV",
                 data=csv,
@@ -109,13 +117,18 @@ if st.button("Scrape Data"):
             )
 
         # Save to Google Sheets button with password
-        if not scraped_data.empty:
+        if st.session_state.scraped_data is not None:
             if st.button("Save to Google Sheets"):
-                password = st.text_input("Enter Password:", type="password")
-                if password == "SATP_pass_key":
-                    with st.spinner("Saving to Google Sheets..."):
-                        result = save_to_google_sheets(scraped_data, "SATP_Data", "raw_zone_incident_summaries")
-                    st.success(result)
-                else:
-                    st.error("Incorrect password!")
+                st.session_state.save_to_sheets = True
+        
+        # Password prompt after clicking "Save to Google Sheets"
+        if st.session_state.save_to_sheets:
+            password = st.text_input("Enter Password:", type="password")
+            if password == "SATP_pass_key":
+                with st.spinner("Saving to Google Sheets..."):
+                    result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
+                st.success(result)
+                st.session_state.save_to_sheets = False
+            elif password:
+                st.error("Incorrect password!")
         
