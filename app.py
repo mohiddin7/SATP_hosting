@@ -11,8 +11,6 @@ if "scraped_data" not in st.session_state:
     st.session_state.scraped_data = None
 if "total_incidents" not in st.session_state:
     st.session_state.total_incidents = 0
-if "save_to_sheets" not in st.session_state:
-    st.session_state.save_to_sheets = False
 
 # Scraping function
 def scrape_satp_data(base_url, years, months):
@@ -116,19 +114,17 @@ if st.button("Scrape Data"):
                 mime='text/csv',
             )
 
-        # Save to Google Sheets button with password
-        if st.session_state.scraped_data is not None:
-            if st.button("Save to Google Sheets"):
-                st.session_state.save_to_sheets = True
-        
-        # Password prompt after clicking "Save to Google Sheets"
-        if st.session_state.save_to_sheets:
-            password = st.text_input("Enter Password:", type="password")
+# Save to Google Sheets functionality in a form
+if st.session_state.scraped_data is not None:
+    with st.form("save_to_sheets_form"):
+        st.write("Save the scraped data to Google Sheets (requires password).")
+        password = st.text_input("Enter Password:", type="password")
+        save_button = st.form_submit_button("Save to Google Sheets")
+
+        if save_button:
             if password == "SATP_pass_key":
                 with st.spinner("Saving to Google Sheets..."):
                     result = save_to_google_sheets(st.session_state.scraped_data, "SATP_Data", "raw_zone_incident_summaries")
                 st.success(result)
-                st.session_state.save_to_sheets = False
-            elif password:
+            else:
                 st.error("Incorrect password!")
-        
