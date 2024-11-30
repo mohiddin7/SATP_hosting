@@ -6,3 +6,5 @@ google-auth-oauthlib
 matplotlib
 requests
 beautifulsoup4
+plotly
+seaborn
