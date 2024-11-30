@@ -49,7 +49,7 @@ def scrape_satp_data(base_url, years, months):
                     incidents_by_date[formatted_date] += 1
 
                     nn = f"{incidents_by_date[formatted_date]:02}"
-                    incident_number = int(f"{month_number}{day.zfill(2)}{year[-2:]}{nn}")
+                    incident_number = f"{month_number}{day.zfill(2)}{year[-2:]}{nn}"
 
                     data.append({
                         "Incident_Number": incident_number,
