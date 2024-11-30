@@ -82,12 +82,13 @@ def main():
     # )
     # st.plotly_chart(fig_trend)
 
-    # Key Metrics
+    # Layout for key metrics
     st.header("🔢 Key Metrics")
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
     col1.metric("Total Incidents", len(filtered_data))
     col2.metric("Total Fatalities", filtered_data['total_fatalities'].sum())
     col3.metric("Total Injuries", filtered_data['total_injuries'].sum())
+    col4.metric("Deadliest State", filtered_data.groupby("state")["total_fatalities"].sum().idxmax())
 
     # 1. Incident Trend Over Time
     st.header("📈 Trend of Incidents Over Time")
@@ -180,6 +181,15 @@ def main():
         labels={"value": "Count", "Date": "Date"}, barmode="group"
     )
     st.plotly_chart(fig_fatalities)
+
+    # Insights on most affected states and peak times
+    st.header("📊 State Rankings and Monthly Distribution")
+    col5, col6 = st.columns(2)
+    state_rankings = filtered_data.groupby("state").size().sort_values(ascending=False).head(10)
+    col5.bar_chart(state_rankings)
+
+    monthly_trends = filtered_data.groupby("month").size()
+    col6.line_chart(monthly_trends)
 
     # Download Button for Filtered Data
     st.sidebar.header("📥 Download Filtered Data")
