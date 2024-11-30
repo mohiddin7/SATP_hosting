@@ -17,6 +17,12 @@ if "save_initiated" not in st.session_state:
 # Scraping function
 def scrape_satp_data(base_url, years, months):
     data = []
+    month_to_number = {
+        "Jan": "01", "Feb": "02", "Mar": "03",
+        "Apr": "04", "May": "05", "Jun": "06",
+        "Jul": "07", "Aug": "08", "Sep": "09",
+        "Oct": "10", "Nov": "11", "Dec": "12"
+    }
     for year in years:
         for month in months:
             url = f"{base_url}-{month}-{year}"
@@ -41,7 +47,8 @@ def scrape_satp_data(base_url, years, months):
 
                     raw_date = date.get_text().strip()
                     day = raw_date.split('-')[-1].strip()
-                    month_number = f"{months.index(month) + 1:02}"
+                    month_number = month_to_number[month]
+                     # month_number = f"{months.index(month) + 1:02}"
                     formatted_date = f"{year}-{month_number}-{day.zfill(2)}"
 
                     if formatted_date not in incidents_by_date:
