@@ -36,6 +36,7 @@ def main():
         # Convert Date column to datetime
         data['Date'] = pd.to_datetime(data['Date'], errors='coerce')
         data['year'] = data['Date'].dt.year
+        data['month'] = data['Date'].dt.month
         #
         return data
 
@@ -182,7 +183,7 @@ def main():
     )
     st.plotly_chart(fig_fatalities)
 
-     # Insights on most affected states and peak times
+    # Insights on most affected states and peak times
     st.header("📊 State Rankings and Monthly Distribution")
     col5, col6 = st.columns(2)
     state_rankings = filtered_data.groupby("state").size().sort_values(ascending=False).head(10)
