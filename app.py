@@ -122,9 +122,9 @@ def save_to_google_sheets(data, spreadsheet_name, sheet_name):
         batch_data = new_rows.values.tolist()  # Convert DataFrame to a list of lists
         # Insert new rows
         sheet.append_rows(batch_data)
-        print(f"Uploaded {len(new_rows)} new rows to Google Sheet.")
+        return print(f"Uploaded {len(new_rows)} new rows to Google Sheet.")
     else:
-        print("No new incidents found to upload.")
+        return print("No new incidents found to upload.")
 
 
 # Streamlit app
