@@ -15,68 +15,49 @@ if "save_initiated" not in st.session_state:
     st.session_state.save_initiated = False
 
 # Scraping function
-import requests
-from bs4 import BeautifulSoup
-import re
-import pandas as pd
-
-def scrape_satp_data(base_url, year, months):
+def scrape_satp_data(base_url, years, months):
     data = []
-    for month in months:
-        url = f"{base_url}-{month}-{year}"
-        print(f"Scraping: {url}")
-        response = requests.get(url)
-        if response.status_code != 200:
-            print(f"Failed to fetch data for {month}: {response.status_code}")
-            continue
+    for year in years:
+        for month in months:
+            url = f"{base_url}-{month}-{year}"
+            with st.spinner(f"Scraping: {url}"):
+                response = requests.get(url)
+                if response.status_code != 200:
+                    st.warning(f"Failed to fetch data for {month} {year}: {response.status_code}")
+                    continue
 
-        soup = BeautifulSoup(response.text, 'html.parser')
+                soup = BeautifulSoup(response.text, 'html.parser')
+                coverpage_news = soup.find_all('div', class_='more')
+                coverpage_date = soup.find_all('td', style="width: 15%;")
 
-        # Extract incident details and dates
-        coverpage_news = soup.find_all('div', class_='more')  # Incidents
-        coverpage_date = soup.find_all('td', style="width: 15%;")  # Dates
+                if len(coverpage_news) != len(coverpage_date):
+                    st.warning(f"Mismatch in incidents ({len(coverpage_news)}) and dates ({len(coverpage_date)}) for {month} {year}.")
+                    continue
 
-        # Validate counts of incidents and dates
-        if len(coverpage_news) != len(coverpage_date):
-            print(f"Warning: Mismatch in dates ({len(coverpage_date)}) and incidents ({len(coverpage_news)}) for {month}.")
-            continue
+                incidents_by_date = {}
+                for date, incident in zip(coverpage_date, coverpage_news):
+                    incident_summary = incident.get_text().strip()
+                    incident_summary = re.sub(r"\s+", " ", incident_summary).replace("Read less...", "")
 
-        # Group incidents by date to track the nn counter
-        incidents_by_date = {}
+                    raw_date = date.get_text().strip()
+                    day = raw_date.split('-')[-1].strip()
+                    month_number = f"{months.index(month) + 1:02}"
+                    formatted_date = f"{year}-{month_number}-{day.zfill(2)}"
 
-        # Iterate through the extracted dates and incidents
-        for date, incident in zip(coverpage_date, coverpage_news):
-            # Clean and format the incident summary
-            incident_summary = incident.get_text().strip()
-            incident_summary = re.sub(r"\s+", " ", incident_summary)  # Remove extra whitespace
-            incident_summary = incident_summary.replace("Read less...", "")  # Remove "Read less..."
+                    if formatted_date not in incidents_by_date:
+                        incidents_by_date[formatted_date] = 0
+                    incidents_by_date[formatted_date] += 1
 
-            # Clean and format the date
-            raw_date = date.get_text().strip()
-            day = raw_date.split('-')[-1].strip().zfill(2)  # Ensure day is two digits
-            month_number = f"{months.index(month) + 1:02}"  # Convert month name to two-digit number
-            year_last_two = year[-2:].zfill(2)  # Ensure year is two digits
-            formatted_date = f"{year}-{month_number}-{day}"
+                    nn = f"{incidents_by_date[formatted_date]:02}"
+                    incident_number = f"I{month_number}{day.zfill(2)}{year[-2:]}{nn}"
 
-            # Track the nn counter for this date
-            if formatted_date not in incidents_by_date:
-                incidents_by_date[formatted_date] = 0
-            incidents_by_date[formatted_date] += 1
+                    data.append({
+                        "Incident_Number": incident_number,
+                        "Date": formatted_date,
+                        "Incident_Summary": incident_summary
+                    })
 
-            # Generate the incident number in mmddyynn format
-            nn = f"{incidents_by_date[formatted_date]:02}"  # Increment counter for each summary
-            incident_number = f"{month_number}{day}{year_last_two}{nn}"
-
-            # Append to the data list
-            data.append({
-                "Date": formatted_date,
-                "Incident_Summary": incident_summary,
-                "Incident_Number": incident_number
-            })
-
-    # Convert the data to a pandas DataFrame
-    return pd.DataFrame(data)
-
+    return pd.DataFrame(data), len(data)
 
 # # Save to Google Sheets function
 # def save_to_google_sheets(data, spreadsheet_name, sheet_name):
