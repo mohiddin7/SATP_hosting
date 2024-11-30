@@ -72,13 +72,30 @@ def main():
     st.header("Filtered Data")
     st.dataframe(filtered_data, height=300)
 
+    # # 1. Incident Trend Over Time
+    # st.header("📈 Trend of Incidents Over Time")
+    # trend_data = filtered_data.groupby(["Date", "state"]).size().reset_index(name="Incident Count")
+    # fig_trend = px.line(
+    #     trend_data, 
+    #     x="Date", y="Incident Count", color="state",
+    #     title="Daily Incident Trend by State"
+    # )
+    # st.plotly_chart(fig_trend)
+
+    # Key Metrics
+    st.header("🔢 Key Metrics")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Incidents", len(filtered_data))
+    col2.metric("Total Fatalities", filtered_data['total_fatalities'].sum())
+    col3.metric("Total Injuries", filtered_data['total_injuries'].sum())
+
     # 1. Incident Trend Over Time
     st.header("📈 Trend of Incidents Over Time")
-    trend_data = filtered_data.groupby(["Date", "state"]).size().reset_index(name="Incident Count")
+    trend_data = filtered_data.groupby(["Date"]).size().reset_index(name="Incident Count")
     fig_trend = px.line(
         trend_data, 
-        x="Date", y="Incident Count", color="state",
-        title="Daily Incident Trend by State"
+        x="Date", y="Incident Count",
+        title="Daily Incident Trend"
     )
     st.plotly_chart(fig_trend)
 
