@@ -151,14 +151,24 @@ def main():
     # ax.axis("off")
     # st.pyplot(fig_wc)
 
-    # 5. Heatmap of Incidents by State and Year
+    # 5. Proportions of Incident Types
+    st.header("📊 Proportions of Incident Types")
+    incident_type_columns = ["action_armed_assault", "action_bombing", "action_infrastructure", "action_surrender"]
+    action_counts = filtered_data[incident_type_columns].sum()
+    fig_pie = px.pie(
+        action_counts, 
+        values=action_counts.values, 
+        names=action_counts.index,
+        title="Incident Type Distribution"
+
+    # 6. Heatmap of Incidents by State and Year
     st.header("🔥 Heatmap of Incidents by State and Year")
     heatmap_data = filtered_data.groupby(["state", "year"]).size().unstack(fill_value=0)
     fig, ax = plt.subplots(figsize=(14, 8))
     sns.heatmap(heatmap_data, annot=True, fmt="d", cmap="coolwarm", ax=ax)
     st.pyplot(fig)
 
-    # 6. Fatalities and Injuries Over Time
+    # 7. Fatalities and Injuries Over Time
     st.header("📊 Fatalities and Injuries Over Time")
     fatality_data = filtered_data.groupby("Date")[["total_fatalities", "total_injuries"]].sum().reset_index()
     fig_fatalities = px.bar(
