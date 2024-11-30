@@ -160,6 +160,8 @@ def main():
         values=action_counts.values, 
         names=action_counts.index,
         title="Incident Type Distribution"
+     )
+    st.plotly_chart(fig_pie)   
 
     # 6. Heatmap of Incidents by State and Year
     st.header("🔥 Heatmap of Incidents by State and Year")
