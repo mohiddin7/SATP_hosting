@@ -112,10 +112,13 @@ def save_to_google_sheets(data, spreadsheet_name, sheet_name):
     existing_data = pd.DataFrame(sheet.get_all_records())
     
     # Handle the case where existing_data is empty
-    if existing_data.empty:
+    if existing_data.empty and 'Incident_Number' in existing_data.columns:
         # If no data exists in the sheet, upload the entire dataset
+        sheet.clear()
         new_rows = data
-        # sheet.append_row(list(data.columns))
+    elif existing_data.empty and 'Incident_Number' not in existing_data.columns:
+        new_rows = data
+        sheet.append_row(list(data.columns))
     else:
         if 'Incident_Number' in existing_data.columns and 'Incident_Number' in data.columns:
             # Find new rows based on incident number
