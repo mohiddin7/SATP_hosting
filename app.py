@@ -86,6 +86,7 @@ def scrape_satp_data(base_url, years, months):
 def save_to_google_sheets(data, spreadsheet_name, sheet_name):
     # Set up Google Sheets API credentials
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+    service_account_info = st.secrets["google_credentials"]
     creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
     client = gspread.authorize(creds)
 
