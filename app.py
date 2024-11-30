@@ -115,7 +115,7 @@ def save_to_google_sheets(data, spreadsheet_name, sheet_name):
     if existing_data.empty:
         # If no data exists in the sheet, upload the entire dataset
         new_rows = data
-        sheet.append_row(list(data.columns))
+        # sheet.append_row(list(data.columns))
     else:
         if 'Incident_Number' in existing_data.columns and 'Incident_Number' in data.columns:
             # Find new rows based on incident number
