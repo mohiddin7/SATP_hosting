@@ -85,7 +85,7 @@ def main():
     # 2. Geographic Distribution of Incidents
     st.header("🗺️ Geographic Distribution of Incidents")
     state_counts = filtered_data.groupby("state").size().reset_index(name="Incident Count")
-    geojson_file_path = r"\india-states.json"  # Replace with actual GeoJSON path
+    geojson_file_path = r"india-states.json"  # Replace with actual GeoJSON path
     try:
         with open(geojson_file_path, "r") as file:
             india_geojson = json.load(file)
