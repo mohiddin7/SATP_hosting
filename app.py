@@ -59,28 +59,72 @@ def scrape_satp_data(base_url, years, months):
 
     return pd.DataFrame(data), len(data)
 
-# Save to Google Sheets function
+# # Save to Google Sheets function
+# def save_to_google_sheets(data, spreadsheet_name, sheet_name):
+#     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
+#     service_account_info = st.secrets["google_credentials"]
+#     creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
+#     client = gspread.authorize(creds)
+
+#     try:
+#         sheet = client.open(spreadsheet_name).worksheet(sheet_name)
+#     except gspread.exceptions.WorksheetNotFound:
+#         spreadsheet = client.open(spreadsheet_name)
+#         sheet = spreadsheet.add_worksheet(title=sheet_name, rows=1000, cols=data.shape[1])
+#         sheet.append_row(list(data.columns))
+
+#     existing_data = pd.DataFrame(sheet.get_all_records())
+#     new_rows = data if existing_data.empty else data[~data['Incident_Number'].isin(existing_data['Incident_Number'])]
+    
+#     if not new_rows.empty:
+#         sheet.append_rows(new_rows.values.tolist())
+#         return f"Uploaded {len(new_rows)} new rows to Google Sheet."
+#     else:
+#         return "No new incidents found to upload."
+
+# save_to_google_sheets
 def save_to_google_sheets(data, spreadsheet_name, sheet_name):
+    # Set up Google Sheets API credentials
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets', 'https://www.googleapis.com/auth/drive']
-    service_account_info = st.secrets["google_credentials"]
     creds = Credentials.from_service_account_info(service_account_info, scopes=SCOPES)
     client = gspread.authorize(creds)
 
+    # Open the spreadsheet and worksheet
     try:
         sheet = client.open(spreadsheet_name).worksheet(sheet_name)
     except gspread.exceptions.WorksheetNotFound:
+        # Create a new worksheet if it doesn't exist
         spreadsheet = client.open(spreadsheet_name)
         sheet = spreadsheet.add_worksheet(title=sheet_name, rows=1000, cols=data.shape[1])
+
+        # Insert column headers dynamically
         sheet.append_row(list(data.columns))
+        print(f"Created new sheet '{sheet_name}' and added column headers.")
 
     existing_data = pd.DataFrame(sheet.get_all_records())
-    new_rows = data if existing_data.empty else data[~data['Incident_Number'].isin(existing_data['Incident_Number'])]
     
-    if not new_rows.empty:
-        sheet.append_rows(new_rows.values.tolist())
-        return f"Uploaded {len(new_rows)} new rows to Google Sheet."
+    # Handle the case where existing_data is empty
+    if existing_data.empty:
+        # If no data exists in the sheet, upload the entire dataset
+        new_rows = data
+        sheet.append_row(list(data.columns))
     else:
-        return "No new incidents found to upload."
+        if 'Incident_Number' in existing_data.columns and 'Incident_Number' in data.columns:
+            # Find new rows based on incident number
+            existing_incident_numbers = set(existing_data['Incident_Number'])
+            new_rows = data[~data['Incident_Number'].isin(existing_incident_numbers)]
+        else:
+            new_rows = None
+
+    if not new_rows.empty:
+        # Prepare new data for batch update
+        batch_data = new_rows.values.tolist()  # Convert DataFrame to a list of lists
+        # Insert new rows
+        sheet.append_rows(batch_data)
+        print(f"Uploaded {len(new_rows)} new rows to Google Sheet.")
+    else:
+        print("No new incidents found to upload.")
+
 
 # Streamlit app
 st.title("Scrape Incident Summaries from South Asian Terrorism Portal")
