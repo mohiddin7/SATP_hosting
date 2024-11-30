@@ -182,7 +182,7 @@ def main():
     )
     st.plotly_chart(fig_fatalities)
 
-    # Insights on most affected states and peak times
+     # Insights on most affected states and peak times
     st.header("📊 State Rankings and Monthly Distribution")
     col5, col6 = st.columns(2)
     state_rankings = filtered_data.groupby("state").size().sort_values(ascending=False).head(10)
@@ -190,7 +190,7 @@ def main():
 
     monthly_trends = filtered_data.groupby("month").size()
     col6.line_chart(monthly_trends)
-
+    
     # Download Button for Filtered Data
     st.sidebar.header("📥 Download Filtered Data")
     if st.sidebar.button("Download CSV"):
