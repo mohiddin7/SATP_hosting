@@ -117,6 +117,7 @@ def save_to_google_sheets(data, spreadsheet_name, sheet_name):
         sheet.clear()
         new_rows = data
     elif existing_data.empty and 'Incident_Number' not in existing_data.columns:
+        sheet.clear()
         new_rows = data
         sheet.append_row(list(data.columns))
     else:
